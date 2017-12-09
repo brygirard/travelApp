@@ -42,27 +42,48 @@ function clean_input($data){
         return $data;
 }
 
+$tempfieldname = getTemperatureFieldName($Travel_Month);
+
 if($MIN_Temp != '' or  $MAX_Temp!=''){
-	$tempfieldname = getTemperatureFieldName($Travel_Month);	
+#	$tempfieldname = getTemperatureFieldName($Travel_Month);	
 	$Alias = "Avg_Temp";
 	$sql = getInitialQuery($MIN_Temp, $MAX_Temp, $Alias, $tempfieldname);
 }
 
+$rainfieldname = getRainFieldName($Travel_Month);
+
 if($MIN_Precipitation != '' and $MAX_Precipitation!=''){
-	$rainfieldname = getRainFieldName($Travel_Month);
+#	$rainfieldname = getRainFieldName($Travel_Month);
 	$Alias = "Avg_Precipitation";
 	$sql = getInitialQuery($MIN_Precipitation, $MAX_Precipitation, $Alias, $rainfieldname,$sql);
 }
+$oceanfieldname = "CoastDist";
+
 if($MIN_Distance_To_Ocean!='' and $MAX_Distance_To_Ocean!=''){
-	$fieldname = "CoastDist";
+#	$fieldname = "CoastDist";
 	$Alias = "CoastDist";
-	$sql = getInitialQuery($MIN_Distance_To_Ocean, $MAX_Distance_To_Ocean, $Alias, $fieldname,$sql);
+	$sql = getInitialQuery($MIN_Distance_To_Ocean, $MAX_Distance_To_Ocean, $Alias, $oceanfieldname,$sql);
 }
+$lakefieldname = "LakeDist";
 
 if($MIN_Distance_To_Lake!='' and $MAX_Distance_To_Lake!=''){
-        $fieldname = "LakeDist";
+        #$fieldname = "LakeDist";
 	$Alias = "LakeDist";
-        $sql = getInitialQuery($MIN_Distance_To_Lake, $MAX_Distance_To_Lake, $Alias, $fieldname,$sql);
+        $sql = getInitialQuery($MIN_Distance_To_Lake, $MAX_Distance_To_Lake, $Alias, $lakefieldname,$sql);
+}
+$lodgefieldname = "Lodg";
+
+if($MIN_Lodging_Cost!='' and $MAX_Lodging_Cost!=''){
+        $lodgefieldname = "Lodg";
+        $Alias = "Lodg";
+        $sql = getInitialQuery($MIN_Lodging_Cost, $MAX_Lodging_Cost, $Alias, $lodgefieldname,$sql);
+}
+$mealfieldname = "MIE";
+
+if($MIN_Meal_Cost!='' and $MAX_Meal_Cost!=''){
+#        $mealfieldname = "MIE";
+        $Alias = "MIE";
+        $sql = getInitialQuery($MIN_Meal_Cost, $MAX_Meal_Csot, $Alias, $mealfieldname,$sql);
 }
 
 
@@ -82,19 +103,28 @@ if($Country!=''){
 echo "<br><br>".$sql;
 $result = mysqli_query($conn,$sql) or die('Error querying database.');
 
-displayResult($result,$tempfieldname,$rainfieldname, $Travel_Month);
+$obj = (object)[
+        'data' => $result,
+        'temp_field_name' => $tempfieldname,
+        'precip_field_name' => $rainfieldname,
+	'lodge_field_name'=> $lodgefieldname,
+	'meal_field_name'=> $mealfieldname
+];
+
+displayResult($result,$tempfieldname,$rainfieldname,$lodgefieldname,$mealfieldname,$lakefieldname,$oceanfieldname, $Travel_Month);
 //close connection
-echo "done";
+#echo "done";
 $conn->close();
 ?> 
 
 <?php
 
 function filterTravelWarnings($innersql_1,$warning){
-	echo $warning;	
-        $travel_warning_sql = 	"SELECT `geonameid` ".
-				"FROM Geonames_AdminTKP g, datahub_country d, travelWarnings t ".
-				"WHERE g.geonameid in (".$innersql_1.") AND d.FIPS = t.ns1_identifier AND d.ISO3166_1_Alpha_2 = g.countrycode3166";
+	#echo $warning;	
+
+        $travel_warning_sql =   "SELECT `geonameid` ".
+                                "FROM Geonames_AdminTKP g, countryTravelWarningFips t ".
+                                "WHERE g.geonameid in (".$innersql_1.") AND t.FIPS = t.ns1_identifier AND t.ISO3166_1_Alpha_2 = g.countrycode3166";
 
 
 	$no_warning_sql = 	"SELECT g.*,'' description4 ".
@@ -103,8 +133,8 @@ function filterTravelWarnings($innersql_1,$warning){
 
 	if($warning == '1' or $warning == 1){
         	$travel_warning_sql = 	"SELECT g.*, t.description4 ".
-					"FROM Geonames_AdminTKP g, datahub_country d, travelWarnings t ".
-					"WHERE g.geonameid in (".$innersql_1.") AND d.FIPS = t.ns1_identifier AND d.ISO3166_1_Alpha_2 = g.countrycode3166";
+					"FROM Geonames_AdminTKP g, countryTravelWarningFips t ".
+					"WHERE g.geonameid in (".$innersql_1.") AND t.FIPS = t.ns1_identifier AND t.ISO3166_1_Alpha_2 = g.countrycode3166";
 
 		$completesql = $no_warning_sql. " UNION " .$travel_warning_sql;
 		return $completesql;
@@ -115,7 +145,7 @@ function filterTravelWarnings($innersql_1,$warning){
 	#return $travel_warning_sql;
 }
 
-function displayResult($result, $tempfieldname,$rainfieldname, $Travel_Month){
+function displayResult($result, $tempfieldname,$rainfieldname, $lodgefieldname, $mealfieldname,$lakefieldname,$oceanfieldname, $Travel_Month){
 	echo "<br><br>";
 	//check error state of query
 	echo "<table border='1'>
@@ -126,6 +156,10 @@ function displayResult($result, $tempfieldname,$rainfieldname, $Travel_Month){
                 </td><td>Avg Temp
                 </td><td>Avg Rainfall
                 </td><td>Avg Snowfall
+                </td><td>Avg Lodging Cost
+                </td><td>Avg Meal Cost
+                </td><td>Distance to Ocean
+                </td><td>Distance to Lake
                 </td><td>Warning
                 </td></tr>";
 
@@ -143,6 +177,10 @@ function displayResult($result, $tempfieldname,$rainfieldname, $Travel_Month){
 			$state = $row["Admin1_nameascii"];
 			$warning = $row["description4"];
 			$city = $row["asciiname"];
+			$lodge = $row[$lodgefieldname];
+			$meal = $row[$mealfieldname];
+			$ocean = $row[$oceanfieldname];
+			$lake = $row[$lakefieldname];
                 	echo    "<tr><td>" . $Travel_Month.
                         	"</td><td>" .$country.
 				"</td><td>" .$state.
@@ -150,6 +188,11 @@ function displayResult($result, $tempfieldname,$rainfieldname, $Travel_Month){
                         	"</td><td>" . $temp.
                         	"</td><td>" . $rain.
                         	"</td><td>" . $snow.
+                                "</td><td>" . $lodge.
+                                "</td><td>" . $meal.
+                                "</td><td>" . $ocean.
+                                "</td><td>" . $lake.
+
 				"</td><td>" .$warning.
                        		 "<br>";
         	}
@@ -223,9 +266,9 @@ function getInitialQuery($lLimit, $uLimit,$Alias, $field, $innersql = ""){
                 if($uLimit != '' and $lLimit !=''){
                 	$where = " WHERE `".$field."` <= ".$uLimit." AND `".$field."` >= ".$lLimit." and `geonameid` in (".$innersql.")"; 
                 }elseif($uLimit !='' and $lLimit == ''){
-                       $where = " WHERE `".$field."` <= ".$uLimit." and `geonameid` in (".$innersql.")";
+                       $where = " WHERE `".$field."` <= ".$uLimit." AND `geonameid` in (".$innersql.")";
                 }elseif($uLimit == '' and $lLimit!=''){
-			$where = " WHERE `".$field."` >= ".$lLimit."and `geonameid` in (".$innersql.")";
+			$where = " WHERE `".$field."` >= ".$lLimit." AND `geonameid` in (".$innersql.")";
                 }
 		$sql = "SELECT `geonameid` FROM Geonames_AdminTKP " .$where;
 	}

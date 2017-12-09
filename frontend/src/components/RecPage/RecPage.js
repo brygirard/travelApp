@@ -102,11 +102,18 @@ makePreference(e){
    console.log("Creating Preference...");
   
    var params = new URLSearchParams();
+
+   const minTempC = (this.state.minT -32) * (5/9);
+   const maxTempC = (this.state.maxT -32) * (5/9);
+   const minDistOM = (this.state.minOcean / 0.00062137);
+   const maxDistOM = (this.state.maxOcean / 0.00062137);
+   const minDistLM = (this.state.minLake / 0.00062137);
+   const maxDistLM = (this.state.maxLake / 0.00062137);
+
    params.append('UserID', 1);
    params.append('Travel_Month', this.state.month);
-
-   params.append('MIN_Temp', this.state.minT);
-   params.append('MAX_Temp', this.state.maxT);
+   params.append('MIN_Temp', minTempC);
+   params.append('MAX_Temp', maxTempC);
    params.append('MIN_Precipiation', this.state.minP);
    params.append('MAX_Precipiation', this.state.maxP);
    params.append('MIN_Lodging_Cost', this.state.minLodge);
@@ -115,11 +122,11 @@ makePreference(e){
    params.append('MAX_Meal_Cost', this.state.maxMeal);
 
    params.append('Travel_Advisories', this.state.adv);
-   params.append('MIN_Distance_To_Ocean', this.state.minOcean);
-   params.append('MAX_Distance_To_Ocean', this.state.maxOcean);
+   params.append('MIN_Distance_To_Ocean', minDistOM);
+   params.append('MAX_Distance_To_Ocean', maxDistOM);
 
-   params.append('MIN_Distance_To_Lake', this.state.minLake);
-   params.append('MAX_Distance_To_Lake', this.state.maxLake);
+   params.append('MIN_Distance_To_Lake', minDistLM);
+   params.append('MAX_Distance_To_Lake', maxDistLM);
    params.append('Country', this.state.country);
 
 
@@ -131,6 +138,54 @@ makePreference(e){
   )
   .then(function (response) {
     console.log(response);
+    this.getPreferences(e);
+  })
+  .catch(function (error) {
+    console.log(error);
+  });
+}
+
+getPreferences(e){
+	   console.log("Getting Predictions...");
+  
+     var params = new URLSearchParams();
+
+   const minTempC = (this.state.minT -32) * (5/9);
+   const maxTempC = (this.state.maxT -32) * (5/9);
+   const minDistOM = (this.state.minOcean / 0.00062137);
+   const maxDistOM = (this.state.maxOcean / 0.00062137);
+   const minDistLM = (this.state.minLake / 0.00062137);
+   const maxDistLM = (this.state.maxLake / 0.00062137);
+
+   params.append('UserID', 1);
+   params.append('Travel_Month', this.state.month);
+   params.append('MIN_Temp', minTempC);
+   params.append('MAX_Temp', maxTempC);
+   params.append('MIN_Precipitation', this.state.minP);
+   params.append('MAX_Precipiation', this.state.maxP);
+   params.append('MIN_Lodging_Cost', this.state.minLodge);
+   params.append('MAX_Lodging_Cost', this.state.maxLodge);
+   params.append('MIN_Meal_Cost', this.state.minMeal);
+   params.append('MAX_Meal_Cost', this.state.maxMeal);
+
+   params.append('Travel_Advisories', this.state.adv);
+   params.append('MIN_Distance_To_Ocean', minDistOM);
+   params.append('MAX_Distance_To_Ocean', maxDistOM);
+
+   params.append('MIN_Distance_To_Lake', minDistLM);
+   params.append('MAX_Distance_To_Lake', maxDistLM);
+   params.append('Country', this.state.country);
+
+
+   axios.post("backend/preferencePredictor.php", params, {
+       headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        }
+    }
+  )
+  .then(function (response) {
+    console.log(response);
+
   })
   .catch(function (error) {
     console.log(error);
@@ -145,6 +200,7 @@ makePreference(e){
       <Form>
         <Form.Group widths='equal'>
           <Form.Input label='Country'  onChange={this.handleCountryChange.bind(this)} />
+          <Form.Input label='Month'  onChange={this.handlemonthChange.bind(this)} />
           <Form.Input label='Min Temp (F)'  onChange={this.handleminTChange.bind(this)} />
           <Form.Input label='Max Temp (F)'  onChange={this.handlemaxTChange.bind(this)} />
 
@@ -170,7 +226,7 @@ makePreference(e){
         </Form.Group>
         <Form.Group inline>
           
-          <Form.Button onClick = {this.makePreference.bind(this)}> Submit </Form.Button>
+          <Form.Button onClick = {this.getPreferences.bind(this)}> Submit </Form.Button>
         </Form.Group>
 
       </Form>

@@ -23,7 +23,8 @@ class Header extends Component {
         <Menu.Item header><Logo/></Menu.Item>
         <Menu.Item name='home' active={activeItem === 'home'} onClick={this.handleItemClick} href="/" />
         <Menu.Item name='browse' active={activeItem === 'browse'} onClick={this.handleItemClick} href="/browse"/>
-        <Menu.Item name='recommended' active={activeItem === 'rec'} onClick={this.handleItemClick} href="/rec" />
+        <Menu.Item name='recommended' active={activeItem === 'rec'} onClick={this.handleItemClick} href="/backend/recommendedPlaces.html" />
+        <Menu.Item name='Warnings Demo' active={activeItem === 'rec'} onClick={this.handleItemClick} href="/backend/findWarnings.html" />
         <Menu.Menu position='right'>
             <Menu.Item name='login' active={activeItem === 'login'} onClick={this.handleItemClick} href="/login" />
             <Menu.Item name='create' active={activeItem === 'create'} onClick={this.handleItemClick} href="/create" />

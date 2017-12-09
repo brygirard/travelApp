@@ -92,13 +92,13 @@ if (!$stmt = $conn->prepare("INSERT INTO Preferences (
 
 if(!$stmt->bind_param("isiiddiiiiidddds", 
 			$UserID, 
-			$Travel_Month
+			$Travel_Month,
 			$MAX_Temp,
 			$MIN_Temp,
 			$MAX_Precipitation, 
 			$MIN_Precipitation, 
 			$MAX_Lodging_Cost,
-			$MIN_Lodging_Cost
+			$MIN_Lodging_Cost,
 			$MAX_Meal_Cost,
 			$MIN_Meal_Cost,
 			$Travel_Advisories,

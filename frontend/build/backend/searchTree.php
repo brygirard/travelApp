@@ -1,9 +1,9 @@
 <?php
 
 
- //$term = $_POST['searchTerm'];
- $term = "Ckicdgo";
- $tol = 2;
+ $term = $_POST['searchTerm'];
+// $term = "Denver";
+ $tol = 1;
 $done = false;
 $myCity = '';
 
@@ -23,7 +23,7 @@ $servername = "127.0.0.1";
  
 
 function findMatch($term, $currNodeId, $tol, $wordList, $conn){
-     echo "At id $currNodeId<br/>";
+     //echo "At id $currNodeId<br/>";
 
      global $done;
      if($done){
@@ -45,17 +45,17 @@ function findMatch($term, $currNodeId, $tol, $wordList, $conn){
      
      
      $dist = levenshtein(strtolower($value), strtolower($term));
-     echo "At value $value<br/>";
-     echo "Distance is $dist<br/>";
+     //echo "At value $value<br/>";
+     //echo "Distance is $dist<br/>";
      if($dist <=  $tol && !$done){ //if the distance is within tolerace, add it to the list
-        echo "Sending $value because distance was $dist<br/>";
+        //echo "Sending $value because distance was $dist<br/>";
 	$done = true;
 	global $myCity;
         $myCity  = $value;
      }
      $min = $dist - $tol; //iterate over children with dist b/w min and max
      $max = $dist + $tol;
-     echo "$min and $max <br/>";
+     //echo "$min and $max <br/>";
 
 
 
@@ -87,14 +87,58 @@ function findMatch($term, $currNodeId, $tol, $wordList, $conn){
     }
 
     return $ret; 
+
+
+
+
 }
 
-
 $list = array();
-echo "Searching for $term </br>";
+  $sql = "SELECT *   
+       FROM Geonames_AdminTKP
+       WHERE asciiname LIKE '$term%'
+       ORDER BY population DESC;
+     ";
+     
+  $result = mysqli_query($conn, $sql, MYSQLI_USE_RESULT);  //get the value of the current node
+
+    $resultArray = array();
+    while($row = mysqli_fetch_array($result)){
+         $resultArray[] = $row;
+    };
+    if(sizeof($resultArray) != 0 &&  sizeof($resultArray) != 1){
+       echo json_encode($resultArray);
+       exit(1);
+    }
+
+mysqli_free_result($result); //done with that result, move on
+
+
 $term = findMatch($term, 0, $tol, $list, $conn);
 
-echo "$myCity";
+
+
+//   mysqli_free_result($result); 
+   
+  $sql = "SELECT * 
+       FROM Geonames_AdminTKP
+       WHERE asciiname = '$myCity';
+     ";
+     
+     $result = mysqli_query($conn, $sql, MYSQLI_USE_RESULT);  //get the value of the current node
+
+     if(!$result){
+       die(mysqli_error($conn));
+     }
+
+    $resultArray = array();
+    while($row = mysqli_fetch_array($result)){
+         $resultArray[] = $row;
+    };
+
+
+
+echo json_encode($resultArray);
 
 
 ?>

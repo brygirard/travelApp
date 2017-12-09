@@ -65,6 +65,17 @@ if($MIN_Distance_To_Lake!='' and $MAX_Distance_To_Lake!=''){
         $sql = getInitialQuery($MIN_Distance_To_Lake, $MAX_Distance_To_Lake, $Alias, $fieldname,$sql);
 }
 
+if($MIN_Lodging_Cost!='' and $MAX_Lodging_Cost!=''){
+        $lodgefieldname = "Lodg";
+        $Alias = "Lodg";
+        $sql = getInitialQuery($MIN_Lodging_Cost, $MAX_Lodging_Cost, $Alias, $lodgefieldname,$sql);
+}
+if($MIN_Meal_Cost!='' and $MAX_Meal_Cost!=''){
+        $mealfieldname = "MIE";
+        $Alias = "MIE";
+        $sql = getInitialQuery($MIN_Meal_Cost, $MAX_Meal_Csot, $Alias, $mealfieldname,$sql);
+}
+
 
 $sql = getAllFields($sql);
 #$othersql = allFieldsWithDatahub($sql);
@@ -82,12 +93,23 @@ if($Country!=''){
 #echo "<br><br>".$sql;
 $result = mysqli_query($conn,$sql) or die('Error querying database.');
 
+
+
+$ret = [];
+while($row = mysqli_fetch_array($result)){
+
+	$ret[] = $row;
+}
+
+
 $obj = (object)[
-	'data' => $result,
-	'temp_field_name' => $tempfieldname,
-	'precip_field_name' => $rainfieldname 
+        'data' => $ret,
+        'temp_field_name' => $tempfieldname,
+        'precip_field_name' => $rainfieldname,
+	'lodge_field_name'=> $lodgefieldname,
+	'meal_field_name'=> $mealfieldname
 ];
-echo json_encode( $obj);
+echo json_encode($obj);
 #displayResult($result,$tempfieldname,$rainfieldname, $Travel_Month);
 //close connection
 #echo "done";
@@ -96,7 +118,8 @@ $conn->close();
 
 <?php
 
-function filterTravelWarnings($innersql_1,$warning){	
+function filterTravelWarnings($innersql_1,$warning){
+	#echo $warning;	
         $travel_warning_sql = 	"SELECT `geonameid` ".
 				"FROM Geonames_AdminTKP g, datahub_country d, travelWarnings t ".
 				"WHERE g.geonameid in (".$innersql_1.") AND d.FIPS = t.ns1_identifier AND d.ISO3166_1_Alpha_2 = g.countrycode3166";
@@ -228,9 +251,9 @@ function getInitialQuery($lLimit, $uLimit,$Alias, $field, $innersql = ""){
                 if($uLimit != '' and $lLimit !=''){
                 	$where = " WHERE `".$field."` <= ".$uLimit." AND `".$field."` >= ".$lLimit." and `geonameid` in (".$innersql.")"; 
                 }elseif($uLimit !='' and $lLimit == ''){
-                       $where = " WHERE `".$field."` <= ".$uLimit." and `geonameid` in (".$innersql.")";
+                       $where = " WHERE `".$field."` <= ".$uLimit." AND `geonameid` in (".$innersql.")";
                 }elseif($uLimit == '' and $lLimit!=''){
-			$where = " WHERE `".$field."` >= ".$lLimit."and `geonameid` in (".$innersql.")";
+			$where = " WHERE `".$field."` >= ".$lLimit." AND `geonameid` in (".$innersql.")";
                 }
 		$sql = "SELECT `geonameid` FROM Geonames_AdminTKP " .$where;
 	}

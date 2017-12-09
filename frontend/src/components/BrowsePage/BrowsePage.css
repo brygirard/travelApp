@@ -9,6 +9,14 @@
 	align-items: center;
 	margin: 20px;
 }
+
+.myCard{
+	display:flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	margin: 20px;
+}
 .seachField{
    padding-right: 10px;
 
