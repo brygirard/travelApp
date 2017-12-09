@@ -1,0 +1,55 @@
+<html>
+<body>
+<h1>Reommend Places Based on a Preference</h1>
+<p>Enter values for any of the categories then click the Submit button</p>
+<form method = "post" action="/backend/recommend.php">
+	Travel Month:<br>
+	<input type="text" name="Travel_Month">
+	<br>
+	Desired Minimum Temperature:<br>
+        <input type="text" name="MIN_Temp">
+	<br>
+	Desired Maximum Temperature:<br>
+        <input type="text" name="MAX_Temp">
+        <br>
+	Desired Minimum Precipitation:<br>
+	<input type="text" name="MIN_Precipitation">
+	<br>
+	Desired Maximum Precipitation:<br>
+        <input type="text" name="MAX_Precipitation">
+	<br>        
+	Desired Minimum Lodging Cost:<br>
+        <input type="text" name="MIN_Lodging_Cost">
+        <br>
+        Desired Maximum Lodging Cost:<br>
+        <input type="text" name="MAX_Lodging_Cost">
+        <br>
+	Desired Minimum Meal Cost:<br>
+        <input type="text" name="MIN_Meal_Cost">
+        <br>
+        Desired Maximum Meal Cost:<br>
+        <input type="text" name="MAX_Meal_Cost">
+        <br>
+	Desired Minimum Distance To Ocean:<br>
+        <input type="text" name="MIN_Distance_To_Ocean">
+        <br>
+        Desired Maxmimum Distance To Ocean:<br>
+        <input type="text" name="MAX_Distance_To_Ocean">
+        <br>
+        Desired Minimum Distance To Lake:<br>
+        <input type="text" name="MIN_Distance_To_Lake">
+        <br>
+	Desired Maximum Distance To Lake:<br>
+        <input type="text" name="MAX_Distance_To_Lake">
+	<br>
+        Travel Advisories Allowed?:<br>
+        <input type="text" name="Travel_Advisories">
+        <br>
+        Specific Country Desired?:<br>
+        <input type="text" name="Country">
+        <br><br>
+        <input type="submit" value="Submit">
+</form>
+</body>
+</html>
+

@@ -1,0 +1,15 @@
+.App {
+  text-align: center;
+}
+
+.searchBar{
+	display:flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	margin: 20px;
+}
+.seachField{
+   padding-right: 10px;
+
+}
